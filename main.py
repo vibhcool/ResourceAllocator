@@ -59,10 +59,30 @@ def format_result(allocated_servers, data_centers):
         result.append(result_region)
     return result
 
+def servers_allocate(server_list, hours, cpus, money):
+    servers_allocated = {}
+    data_centers = set()
+    result = {}
+    n = len(server_list)
+    i = 0
+    total = 0
+    if cpus == -1:
+        server_list.sort(key=lambda x: x.price_per_cpu)
+        while i < n and money > 0:
+            if money > server_list[i].price:
+                total = money // server_list[i].price
+                servers_allocated[server_list[i]] = total
+                money -= total * server_list[i].price
+                data_centers.add(server_list[i].data_center)
+            i += 1
+
+    return servers_allocated, data_centers
+
 def get_costs(instances, hours, cpus=-1, money=-1.0):
 
     server_list = get_server_list(instances, hours)
     result = []
+    allocated_servers, data_centers = servers_allocate(server_list, hours, cpus, money)
     result = format_result(allocated_servers, data_centers)
     return result
 
