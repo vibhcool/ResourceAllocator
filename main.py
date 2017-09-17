@@ -1,4 +1,5 @@
 from Model.Server import Server
+from Model.User import User
 
 type_server = {
     'large': 1,
