@@ -75,7 +75,15 @@ def servers_allocate(server_list, hours, cpus, money):
                 money -= total * server_list[i].price
                 data_centers.add(server_list[i].data_center)
             i += 1
-
+    elif money == -1:
+        server_list.sort(key=lambda x: x.cpu_count)
+        while i < n and cpus > 0:
+            if cpus >= server_list[i].cpu_count:
+                total = cpus // server_list[i].cpu_count
+                servers_allocated[server_list[i]] = total
+                cpus -= total * server_list[i].cpu_count
+                data_centers.add(server_list[i].data_center)
+            i += 1
     return servers_allocated, data_centers
 
 def get_costs(instances, hours, cpus=-1, money=-1.0):
