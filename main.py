@@ -35,8 +35,6 @@ k = {
         },
     }
 
-
-
 def get_server_list(instances, hours):
     server_list = []
     for data_center in instances.keys():
@@ -45,10 +43,27 @@ def get_server_list(instances, hours):
             server_list.append(a)
     return server_list
 
+def format_result(allocated_servers, data_centers):
+    result = []
+    for data_center in data_centers:
+        result_region = {'region': data_center}
+        total_cost = 0.0
+        servers = []
+        for server in allocated_servers.keys():
+            if server.data_center == data_center:
+                total_cost += server.price * allocated_servers[server]
+                server_tuple = server.server_type, allocated_servers[server]
+                servers.append(server_tuple)
+        result_region['total_cost'] = total_cost
+        result_region['servers'] = servers
+        result.append(result_region)
+    return result
+
 def get_costs(instances, hours, cpus=-1, money=-1.0):
 
     server_list = get_server_list(instances, hours)
     result = []
+    result = format_result(allocated_servers, data_centers)
     return result
 
 print(get_costs(k, 10, 20, 23.02))
