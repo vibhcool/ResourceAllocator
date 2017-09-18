@@ -1,6 +1,7 @@
 from Model.Server import Server
 from Model.User import User
 
+price_list = []
 type_server = {
     'large': 1,
     'xlarge': 2,
@@ -25,13 +26,6 @@ k = {
             "4xlarge": 0.89,
             "8xlarge": 1.3,
             "10xlarge": 2.97
-        },
-        "us-north": {
-            "large": 0.04,
-            "2xlarge": 0.113,
-            "4xlarge": 0.99,
-            "8xlarge": 0.3,
-            "10xlarge": 2.07
         },
     }
 
@@ -84,8 +78,39 @@ def servers_allocate(server_list, hours, cpus, money):
                 cpus -= total * server_list[i].cpu_count
                 data_centers.add(server_list[i].data_center)
             i += 1
+    else:
+        server_list.sort(key=lambda x: x.price)
+        servers_allocated = max_price_min_cpu(server_list, cpus)
     return servers_allocated, data_centers
 
+def max_price_min_cpu(server_list, cpus):
+    if len(price_list) == 0:
+        price_list.append(([], 0, 0))
+    
+    if cpus < len(price_list) or cpus == 0:
+        return price_list[cpus]
+    if len(price_list) == 0:
+        price_list[0] = [], 0, 0
+    i = len(price_list)
+    print(i, price_list[i])
+    while i < cpus:
+        obj_price = price_list[i-1][2]
+        j = 0
+        server_obj = None
+        while j < len(server_list) and j < i:
+            if obj_price > price_list[i-j][2] + server_list[j].price:
+                if i <= price_list[i-j][1] + server_list[j].cpu_count:
+                    price_object = price_list[i-j]
+                    obj_price = price_list[i-j][2] + server_list[j].price
+                    server_obj = j
+            j +=1
+        if server_obj != None:
+            price_list[i][0] = price_object
+            price_list[i][0].append(server_list[server_obj])
+            price_list[i][1] += server_list[server_obj].cpu_count
+            price_list[i][2] += server_list[server_obj].price
+        i += 1
+            
 def get_costs(instances, hours, cpus=-1, money=-1.0):
 
     server_list = get_server_list(instances, hours)
@@ -94,4 +119,4 @@ def get_costs(instances, hours, cpus=-1, money=-1.0):
     result = format_result(allocated_servers, data_centers)
     return result
 
-print(get_costs(k, 10, 20, 23.02))
+print(get_costs(k, 10, 24, 35.02))
