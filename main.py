@@ -1,7 +1,10 @@
+import math
 from Model.Server import Server
 from Model.User import User
 
+dp = []
 price_list = []
+
 type_server = {
     'large': 1,
     'xlarge': 2,
@@ -33,11 +36,12 @@ def get_server_list(instances, hours):
     server_list = []
     for data_center in instances.keys():
         for server in instances[data_center].keys():
-            a = Server(type_server[server], instances[data_center][server], data_center, hours, server)
-            server_list.append(a)
+            server_obj = Server(type_server[server], instances[data_center][server], data_center, hours, server)
+            server_list.append(server_obj)
     return server_list
 
 def format_result(allocated_servers, data_centers):
+    
     result = []
     for data_center in data_centers:
         result_region = {'region': data_center}
@@ -70,7 +74,7 @@ def servers_allocate(server_list, hours, cpus, money):
                 data_centers.add(server_list[i].data_center)
             i += 1
     elif money == -1:
-        server_list.sort(key=lambda x: x.cpu_count)
+        server_list.sort(key=lambda x: x.cpu_count, reverse=True)
         while i < n and cpus > 0:
             if cpus >= server_list[i].cpu_count:
                 total = cpus // server_list[i].cpu_count
@@ -79,38 +83,44 @@ def servers_allocate(server_list, hours, cpus, money):
                 data_centers.add(server_list[i].data_center)
             i += 1
     else:
-        server_list.sort(key=lambda x: x.price)
-        servers_allocated = max_price_min_cpu(server_list, cpus)
+        server_list.sort(key=lambda x: x.price_per_cpu) 
+        optimize(server_list, cpus)
+        servers_allocated = get_best_price(cpus, money)
+        for server in servers_allocated:
+            data_centers.add(server.data_center)
     return servers_allocated, data_centers
 
-def max_price_min_cpu(server_list, cpus):
-    if len(price_list) == 0:
-        price_list.append(([], 0, 0))
-    
-    if cpus < len(price_list) or cpus == 0:
-        return price_list[cpus]
-    if len(price_list) == 0:
-        price_list[0] = [], 0, 0
-    i = len(price_list)
-    print(i, price_list[i])
-    while i < cpus:
-        obj_price = price_list[i-1][2]
-        j = 0
-        server_obj = None
-        while j < len(server_list) and j < i:
-            if obj_price > price_list[i-j][2] + server_list[j].price:
-                if i <= price_list[i-j][1] + server_list[j].cpu_count:
-                    price_object = price_list[i-j]
-                    obj_price = price_list[i-j][2] + server_list[j].price
-                    server_obj = j
-            j +=1
-        if server_obj != None:
-            price_list[i][0] = price_object
-            price_list[i][0].append(server_list[server_obj])
-            price_list[i][1] += server_list[server_obj].cpu_count
-            price_list[i][2] += server_list[server_obj].price
-        i += 1
-            
+def optimize(wt, W):
+    if len(dp) > W:
+        return
+
+    for x in range(len(dp), W - len(dp) + 1):
+        dp.append([])
+        price_list.append(0.0)
+
+    n = len(wt)
+    for i in range(0, W+1):
+        if i != 0:
+            dp[i] = []
+            price_list[i] = math.inf
+        for j in range(0, n):
+            if wt[j].cpu_count <= i:
+                if price_list[i] > price_list[i-wt[j].cpu_count] + wt[j].price:
+                    dp[i] = list(dp[i-wt[j].cpu_count])
+                    dp[i].append(wt[j])
+                    price_list[i] = price_list[i-wt[j].cpu_count]+wt[j].price
+
+def get_best_price(cpus, money):
+    allocated = {}
+    for i in range(cpus, len(dp)):
+        if price_list[i] <= money:
+            for i in dp[i]:
+                try:
+                    allocated[i] = allocated[i] + 1
+                except KeyError:
+                    allocated[i] = 1
+            return allocated
+
 def get_costs(instances, hours, cpus=-1, money=-1.0):
 
     server_list = get_server_list(instances, hours)
@@ -119,4 +129,4 @@ def get_costs(instances, hours, cpus=-1, money=-1.0):
     result = format_result(allocated_servers, data_centers)
     return result
 
-print(get_costs(k, 10, 24, 35.02))
+#print(get_costs(k, 10, 23, 23.5))
