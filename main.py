@@ -121,11 +121,11 @@ def get_best_price(cpus, money):
                     allocated[i] = 1
             return allocated
 
-def get_costs(instances, hours, cpus=-1, money=-1.0):
+def get_costs(instances, hours, cpus=-1, price=-1.0):
 
     server_list = get_server_list(instances, hours)
     result = []
-    allocated_servers, data_centers = servers_allocate(server_list, hours, cpus, money)
+    allocated_servers, data_centers = servers_allocate(server_list, hours, cpus, price)
     result = format_result(allocated_servers, data_centers)
     return result
 
