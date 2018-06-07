@@ -1,5 +1,6 @@
 from main import *
 
+# Server Dictionary to set the values of servers with prices provided by the Company
 server_dict = {
         "us-east": {
             "large": 0.12,
@@ -18,11 +19,11 @@ server_dict = {
         },
     }
 
-# For min CPUs 23 and max price 23.5
+# To allocate servers with min CPUs 23 and max price 23.5
 print(get_costs(server_dict, 10, 23, 23.5))
 
-# For min CPUs 23
+# To allocate servers with min CPUs 23
 print(get_costs(server_dict, 10, cpus=23))
 
-# For max price 23.5
+# To allocate servers with max price 23.5
 print(get_costs(server_dict, 10, price=23.5))
