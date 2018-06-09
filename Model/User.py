@@ -1,13 +1,33 @@
 
 class User(object):
+    '''
+        User to whom, the servers are allocated, This class can be inherited
+        to add more features like authentication, etc
+    '''
 
     def __init__(self, name, email, servers=None):
+        '''
+            Return self object with attributes:
+
+            1) name: Name of the user
+            2) email: Email of the user
+            3) servers: List of Servers grouped according to the regions
+        '''
         self.name = name
         self.email = email
         if servers is None:
             self.servers = servers
         else:
             self.servers = []
+
+    def __str__(self):
+        ''' Returns self as string object '''
+        output = ''
+        output += 'Name:\t' + self.name + '\n'
+        output += 'Email:\t' + self.email + '\n'
+        output += 'Servers per Regions:\n'
+        output = self.print_servers(output)
+        return output
 
     def set_name(self, name):
         self.name = name
@@ -26,14 +46,6 @@ class User(object):
 
     def get_servers(self):
         return self.servers
-
-    def __str__(self):
-        output = ''
-        output += 'Name:\t' + self.name + '\n'
-        output += 'Email:\t' + self.email + '\n'
-        output += 'Servers per Regions:\n'
-        output = self.print_servers(output)
-        return output
 
     def print_servers(self, output):
         for servers_group in self.servers:

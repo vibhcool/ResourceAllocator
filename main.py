@@ -2,9 +2,15 @@ import math
 from Model.Server import Server
 from Model.User import User
 
+'''
+    Object to store processed info to not to process again i.e. Dynamic
+    Programming Data Structure
+'''
 dp = []
+
 price_list = []
 
+''' Types of servers and number of CPUs they have '''
 type_server = {
     'large': 1,
     'xlarge': 2,
@@ -16,6 +22,10 @@ type_server = {
 
 
 def get_server_list(instances, hours):
+    '''
+        Get list of all servers from dictionary of servers grouped according
+        to data centers they belong
+    '''
     server_list = []
     for data_center in instances.keys():
         for server in instances[data_center].keys():
@@ -31,6 +41,21 @@ def get_server_list(instances, hours):
 
 
 def format_result(allocated_servers, data_centers):
+    '''
+        Format the result in a data structure before output
+        Like:
+            [
+                {'region': 'us-west',
+                'total_cost': 13.0,
+                'servers': [('8xlarge', 1.0)]
+                },
+                {'region': 'us-east',
+                'total_cost': 10.040000000000001,
+                'servers': [('4xlarge', 1.0),
+                            ('xlarge', 1.0)]
+                }
+            ]
+    '''
     result = []
     for data_center in data_centers:
         result_region = {'region': data_center}
@@ -48,6 +73,7 @@ def format_result(allocated_servers, data_centers):
 
 
 def servers_allocate(server_list, hours, cpus, money):
+    ''' Allocating Servers program according to constraints given '''
     servers_allocated = {}
     data_centers = set()
     result = {}
@@ -82,6 +108,10 @@ def servers_allocate(server_list, hours, cpus, money):
 
 
 def optimize(wt, W):
+    '''
+        Optimize the result before outputing allocated result. Algorithm used
+        is a variant of Integer Knapsack problem.
+    '''
     if len(dp) > W:
         return
 
@@ -103,6 +133,9 @@ def optimize(wt, W):
 
 
 def get_best_price(cpus, money):
+    '''
+        Allocate servers according to only 1 constraint, i.e. cost
+    '''
     allocated = {}
     for i in range(cpus, len(dp)):
         if price_list[i] <= money:
@@ -115,7 +148,20 @@ def get_best_price(cpus, money):
 
 
 def get_costs(instances, hours, cpus=-1, price=-1.0):
+    '''
+        Main driver function for allocation of servers according to
+        specifications of the user
+        Arguments are:
 
+        1) instances: Dictionary of Servers with their type and respective
+            price grouped according to the regions
+        2) hours: No. of hours the servers needed by user
+
+        3) cpus: minimum no. of CPUs needed by user. If there is no
+            constraint, then it is set to -1.
+        4) price: Maximum price user can pay for the servers. If no such
+            constraint, set it to -1.0.
+    '''
     server_list = get_server_list(instances, hours)
     result = []
     allocated_servers, data_centers = servers_allocate(

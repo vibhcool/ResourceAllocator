@@ -1,6 +1,6 @@
 
 class Server():
-
+    ''' Stores the details of the server '''
     cpu_count = 0
     price = 0
     price_per_cpu = 0
