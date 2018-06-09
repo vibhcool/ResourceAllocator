@@ -1,4 +1,5 @@
 from main import *
+from Model.User import *
 
 # Server Dictionary to set the values of servers with prices provided by the Company
 server_dict = {
@@ -27,3 +28,9 @@ print(get_costs(server_dict, 10, cpus=23))
 
 # To allocate servers with max price 23.5
 print(get_costs(server_dict, 10, price=23.5))
+
+# To allocate 15 servers to Tom
+tom = User('Tom', 'tommail@email.com')
+servers = get_costs(server_dict, 10, price=23.5)
+tom.set_servers(servers)
+print(tom)
