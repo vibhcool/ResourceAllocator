@@ -15,6 +15,6 @@ For Examples, please refer Example.py script.
 
 **Pre-requisite:** Python 3 is installed
 
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 Installation is done, now just import the methods from main
